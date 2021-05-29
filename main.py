@@ -28,6 +28,31 @@ print(hotel_refine4.head())
 print(hotel_refine4.isnull().sum())
 print(hotel_refine4['country'].value_counts())
 
+import numpy as np
+from matplotlib import pyplot as plt
+#colours = {'France':'blue', 'England':'red', 'Ireland': 'green'}
+plt.scatter(x=hotel_refine4['avg_rating'], y=hotel_refine4['total_reviews_count'])
+plt.show()
+plt.close()
+#Too much data
+#Use Ireland only
+hotel_refine4.set_index('country', inplace = True)
+restaurant_ireland = hotel_refine4.loc[['Ireland','Northern Ireland']]
+print(restaurant_ireland.head())
+#Drop Dunmurry as only 1 item and makes no sense
+restaurant_ireland= restaurant_ireland[restaurant_ireland != 'Dunmurry']
+#Change Belfast to Ulster
+restaurant_ireland['region'] = restaurant_ireland['region'].replace(['Belfast'],'Province of Ulster')
+print(restaurant_ireland['region'].value_counts())
+plt.scatter(x=restaurant_ireland['avg_rating'], y=restaurant_ireland['total_reviews_count'])
+plt.show()
+
+#Lets see 5star resturant distribution
+print(restaurant_ireland5.head())
+plt.hist(restaurant_ireland5['province'])
+plt.show()
+
+
 
 #import requests
 
@@ -43,3 +68,4 @@ print(hotel_refine4['country'].value_counts())
 #response = requests.request("GET", url, headers=headers, params=querystring)
 
 # print(response.text)
+
