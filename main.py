@@ -32,6 +32,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 #colours = {'France':'blue', 'England':'red', 'Ireland': 'green'}
 plt.scatter(x=hotel_refine4['avg_rating'], y=hotel_refine4['total_reviews_count'])
+plt.xlabel('Average rating of restaurant')
+plt.ylabel('No. of total reviews')
+plt.title('Scatter plot showing effect of total no of reviews on average rating')
 plt.show()
 plt.close()
 #Too much data
@@ -45,12 +48,42 @@ restaurant_ireland= restaurant_ireland[restaurant_ireland != 'Dunmurry']
 restaurant_ireland['region'] = restaurant_ireland['region'].replace(['Belfast'],'Province of Ulster')
 print(restaurant_ireland['region'].value_counts())
 plt.scatter(x=restaurant_ireland['avg_rating'], y=restaurant_ireland['total_reviews_count'])
+plt.xlabel('Average rating of restaurants in Ireland')
+plt.ylabel('No. of total reviews')
+plt.title('Scatter plot showing effect of total no of reviews on average rating in Ireland')
 plt.show()
 
 #Lets see 5star resturant distribution
+restaurant_ireland5 = restaurant_ireland.loc[restaurant_ireland['avg_rating'] == 5.0]
 print(restaurant_ireland5.head())
-plt.hist(restaurant_ireland5['province'])
+plt.hist(restaurant_ireland5['region'])
+plt.xlabel('Region')
+plt.ylabel('No. of 5star restaurants')
+plt.title('Locations of 5star rated restaurants in Ireland')
 plt.show()
+
+#Michelin Star Restaurants
+df_onestar = pd.read_csv('one-star-michelin-restaurants.csv')
+df_twostar = pd.read_csv('two-stars-michelin-restaurants.csv')
+df_threestar = pd.read_csv('three-stars-michelin-restaurants.csv')
+
+one_star_restaurant= pd.DataFrame(df_onestar)
+two_star_restaurant = pd.DataFrame(df_twostar)
+three_star_restaurant =pd.DataFrame(df_threestar)
+print(one_star_restaurant.columns.tolist())
+one_star_restaurant['Star'] = '1'
+two_star_restaurant['Star'] = '2'
+three_star_restaurant['Star'] = '3'
+#No longer need to check these three.
+#print(one_star_restaurant.head())
+#print(two_star_restaurant.head())
+#print(three_star_restaurant.head())
+star_restaurant_df = [one_star_restaurant, two_star_restaurant, three_star_restaurant]
+star_restaurant = pd.concat(star_restaurant_df)
+print(star_restaurant.head())
+print(star_restaurant.columns.tolist())
+
+
 
 
 
