@@ -31,25 +31,29 @@ print(hotel_refine4['country'].value_counts())
 import numpy as np
 from matplotlib import pyplot as plt
 import seaborn as sns
-hotel_refine4['country'].value_counts().sort_values(ascending = False).plot(kind='bar')
+hotel_refine4['country'].value_counts().sort_values(ascending = False).plot(kind='bar', figsize = (16,9))
 plt.title('No of restaurants in each Country')
 plt.xlabel('Country')
 plt.ylabel('Number of restaurants')
+plt.xticks(rotation=30, horizontalalignment="center")
 plt.show()
-plt.scatter(x=hotel_refine4['avg_rating'], y=hotel_refine4['total_reviews_count'])
+#No real trend seen
+#Showing only for restaurants will more than 6000 reviews
+plt.figure(figsize=(15,10))
+plt.scatter(x=hotel_refine4['total_reviews_count'], y=hotel_refine4['avg_rating'],s=150, alpha=0.4,edgecolor='red')
 plt.xlabel('Average rating of restaurant')
 plt.ylabel('No. of total reviews')
 plt.title('Scatter plot showing effect of total no of reviews on average rating')
 plt.show()
-plt.close()
+#See if no. of reviews controls it
+plt.figure(figsize=(15,10))
+plt.scatter(x=hotel_refine4['total_reviews_count'], y=hotel_refine4['avg_rating'],s=150, alpha=0.4,edgecolor='red')
+plt.xlabel('Average rating of restaurant')
+plt.ylabel('No. of total reviews')
+plt.title('Scatter plot of total no. of reviews on average rating, with at least 6000 reviews')
+plt.xlim(6000)
 
-#Showing if having nutritional options helps wth avg_rating
-#Use height and aspect to make graphs more appealing, can see trend better
-#g = sns.PairGrid(hotel_refine4, y_vars="avg_rating",
- #                x_vars=["vegetarian_friendly", "vegan_options", "gluten_free"],
-  #               height=7, aspect=1)
-#g.map(sns.pointplot, color="xkcd:coral")
-#plt.show()
+plt.show()
 
 
 #Use Ireland only
@@ -61,29 +65,50 @@ restaurant_ireland= restaurant_ireland[restaurant_ireland != 'Dunmurry']
 #Change Belfast to Ulster
 restaurant_ireland['region'] = restaurant_ireland['region'].replace(['Belfast'],'Province of Ulster')
 print(restaurant_ireland['region'].value_counts())
-plt.scatter(x=restaurant_ireland['avg_rating'], y=restaurant_ireland['total_reviews_count'])
-plt.xlabel('Average rating of restaurants in Ireland')
-plt.ylabel('No. of total reviews')
-plt.title('Scatter plot showing effect of total no of reviews on average rating in Ireland')
-plt.show()
 
-#Lets see 5star resturant distribution
+#Total reviews affect avg_rating in Ireland?
+ax = sns.stripplot(x="avg_rating", y="total_reviews_count",data = restaurant_ireland, edgecolor='gray',linewidth=1, jitter = 0.4)
+plt.xlabel('Avg Rating')
+plt.ylabel('Total Review Counts')
+plt.title('Total reviews against Avg Rating for Ireland')
+plt.show()
+#Same for region, lets investigate further,
+
+#Lets see 5star resturant distribution, region affect ?
 restaurant_ireland5 = restaurant_ireland.loc[restaurant_ireland['avg_rating'] == 5.0]
 print(restaurant_ireland5.head())
-plt.hist(restaurant_ireland5['region'])
+plt.hist(restaurant_ireland5['region'], color = 'green')
 plt.xlabel('Region')
 plt.ylabel('No. of 5star restaurants')
-plt.title('Locations of 5star rated restaurants in Ireland')
+plt.title('Locations of 5star rated restaurants in Ireland by Region')
 plt.show()
+#5 Star rating across all Ireland
 
 #Get awards to say Yes or None, None already added
 restaurant_ireland.loc[restaurant_ireland['awards'] != 'None', 'awards'] = 'Yes'
 #print(restaurant_ireland.head()) , check complete, any award is replaced with Yes
 
+#See if awards helps with avg_rating, and looking at price_level as well
 ax = sns.violinplot(x="price_level", y="avg_rating", hue="awards",
                     data=restaurant_ireland, order=['€','€€-€€€','€€€€'], palette="muted", split=True)
+plt.xlabel('Price Ranges')
+plt.ylabel('Avg Rating')
+plt.title('Violin Plot of Distribution of Avg Rating by Price Level')
 plt.legend(loc='lower right')
 plt.show()
+
+
+#Showing if having nutritional options helps wth avg_rating in Ireland
+#Use height and aspect to make graphs more appealing, can see trend better
+g = sns.PairGrid(restaurant_ireland, y_vars="avg_rating",
+             x_vars=["vegetarian_friendly", "vegan_options", "gluten_free"],
+              height=6.5, aspect=1.3)
+g.map(sns.pointplot, color="xkcd:coral")
+plt.xlabel('Nutritional Options')
+plt.ylabel('Avg Rating')
+plt.title('Showing changes in Avg Rating when Nutritional Options Offered')
+plt.show()
+#Side by sie can see that have the nutritional options helps customer rating
 
 #Michelin Star Restaurants
 #Only contains updated restaurants to some countries for last 2 years
@@ -108,43 +133,57 @@ print(star_restaurant.head())
 print(star_restaurant.columns.tolist())
 print(star_restaurant.shape)
 
-#Change some cities name to the regions
+#Change some cities name to the regions/country
 us_cities=['California','Chicago','New York City','Washington DC']
 brazil_cities=['Rio de Janeiro','Sao Paulo']
 star_restaurant['region'] = star_restaurant['region'].replace(us_cities,'USA')
 star_restaurant['region'] = star_restaurant['region'].replace(brazil_cities,'Brazil')
 star_count_region = star_restaurant.groupby('region',as_index= False)['Star'].agg({'sum','count'})
-star_count_region.sort_values(by=['sum'], ascending =False)
+star_count_region.sort_values(by='sum', ascending =False)
 print(star_count_region)
 print(star_count_region.columns.tolist())
 
+#Exploring regions getting new michelin stars, See new total sum stars added to a region,
+#and no. restaurants restaurants getting new stars
+#The difference is figures is that some restaurants could be changing to 2 stars.
 # Plot the total 'new stars'
+plt.figure(figsize=(15,10))
 sns.set_color_codes("bright")
 sns.barplot(x="sum", y=star_count_region.index, data=star_count_region,
-            label="Total Stars Updated", color='g')
+            label="Sum of Totals New Stars in Region", color='r')
 # Plot the sum of restaurants updated
 sns.set_color_codes("dark")
 sns.barplot(x="count", y=star_count_region.index, data=star_count_region,
-            label="Top restaurants updated",color='g')
-plt.legend(ncol=2, loc="lower right", frameon=True)
-plt.ylabel('Region')
+            label="Total Restaurants getting new Star",color='r')
+plt.legend(ncol=2, loc="upper right", frameon=True)
+plt.ylabel('Country')
 plt.xlabel('Count of updated stars')
+plt.title('Barplot showing Total number of Michelin Star changes for Country')
 plt.show()
+#UK and other europe regions present, lets see if no stars have correlation to the ratings
 
+#Change hotel_refine4 to say UK, and restaurant_name to be name
+#Merge with star_restaurants on name, will merge the European places.
+#Need to reset index of hotel_refine4 as country used as index before
+#Change column names so can merge on them (Could do left_on and right_on)
+#Inner join to keep only michelin restaurants
+hotel_refine4.reset_index(inplace=True)
+hotel_refine4["country"].replace({"England": "United Kingdom", "Scotland": "United Kingdom", "Wales" : "United Kingdom"}, inplace=True)
+star_restaurant.rename(columns={'region':'country'}, inplace= True)
+hotel_refine4.rename(columns={'restaurant_name':'name'}, inplace= True)
+restaurant_euro_star = hotel_refine4.merge(star_restaurant, on=('name','country'), suffixes=('_rest','_star'))
+print(restaurant_euro_star.head())
+print(restaurant_euro_star['country'].value_counts())
+#Primarily UK included now
+restaurant_euro_star.loc[restaurant_euro_star['features'] != 'None', 'features'] = 'Yes'
+restaurant_euro_star['rating_metric'] = restaurant_euro_star['food']+restaurant_euro_star['service']+ \
+            restaurant_euro_star['value']
+#See how stared restaurants,
+ax =  sns.swarmplot(x="rating_metric", y="features", hue="Star",
+                   data=restaurant_euro_star,palette = 'bright', edgecolor='red', linewidth=0.3, size=3.2)
+plt.show()
+#Features little change,
 
-#Take EU ones, merge with hotel_refine4 or take restaurant and merge with irish ones
-
-
-
-#No of Michelin Star Restaurants in the previously used df
-#print(hotel_refine4['latitude'].isin(star_restaurant['latitude']).value_counts())
-#print(hotel_refine4['longitude'].isin(star_restaurant['longitude']).value_counts())
-star_restaurant.rename(columns={'name':'restaurant_name'},inplace=True)
-
-#Inner Join all updated michelin resturants into
-#restaurants_and_stars = hotel_refine4.merge(star_restaurant,on=('restaurant_name'),suffixes=('_rest','_star' ))
-#print(restaurants_and_stars.head())
-#print(restaurants_and_stars.shape)
 
 
 
