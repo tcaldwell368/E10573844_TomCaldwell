@@ -185,25 +185,26 @@ plt.show()
 #Features little change,
 
 
+import requests
+import json
+url = "https://travel-advisor.p.rapidapi.com/restaurants/list-by-latlng"
+
+querystring = {"latitude":"53.35014","longitude":"-6.266155","limit":"30","distance":"10","open_now":"false","lunit":"km","min_rating":"3"}
+
+headers = {
+   'x-rapidapi-key': "3e5ee6b200msh8bafd806e6e5a41p142121jsn0f80884ee934",
+   'x-rapidapi-host': "travel-advisor.p.rapidapi.com"
+    }
+
+response = requests.request("GET", url, headers=headers, params=querystring)
+
+things=response.text
+data_api_dub = json.loads(things)
+data_api_dub_normal= pd.json_normalize(data_api_dub,'data')
+print(data_api_dub_normal.head())
 
 
 
 
 
-#import requests
-#import json
-#url = "https://travel-advisor.p.rapidapi.com/restaurants/list-by-latlng"
 
-#querystring = {"latitude":"53.35014","longitude":"-6.266155","limit":"30","distance":"10","open_now":"false","lunit":"km","min_rating":"3"}
-
-#headers = {
- #   'x-rapidapi-key': "3e5ee6b200msh8bafd806e6e5a41p142121jsn0f80884ee934",
-  #  'x-rapidapi-host': "travel-advisor.p.rapidapi.com"
-   # }
-
-#response = requests.request("GET", url, headers=headers, params=querystring)
-
-#things=response.text
-#data_api = json.loads(things)
-#data_api_normal=pd.json_normalize(data_api,'data')
-#print(data_api_normal.head())
