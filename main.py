@@ -37,6 +37,7 @@ plt.xlabel('Country')
 plt.ylabel('Number of restaurants')
 plt.xticks(rotation=30, horizontalalignment="center")
 plt.show()
+
 #No real trend seen
 #Showing only for restaurants will more than 6000 reviews
 plt.figure(figsize=(15,10))
@@ -52,6 +53,25 @@ plt.xlabel('Average rating of restaurant')
 plt.ylabel('No. of total reviews')
 plt.title('Scatter plot of total no. of reviews on average rating, with at least 6000 reviews')
 plt.xlim(6000)
+plt.show()
+
+country_names=['Italy','France','England','Spain','Germany','Greece','Portugal','Belgium','Austria', 'Scotland','Poland'\
+               , 'Ireland', 'Wales', 'Czech','Croatia','Sweden','Slovakia','Hungary','NI']
+country_names_sort= sorted(country_names)
+#Use of pivot table and numpy
+#Use of dictionary for aggfunc
+#Use of looping/itterows for annotate
+restaurant_pivot = pd.pivot_table(hotel_refine4, index =['country'], values=['avg_rating', 'total_reviews_count'],
+           aggfunc={'avg_rating':[np.mean], 'total_reviews_count':np.sum})
+print(restaurant_pivot)
+country_numbers = hotel_refine4['country'].value_counts()
+plt.figure(figsize=(20,8))
+plt.scatter(x= restaurant_pivot['total_reviews_count'], y= restaurant_pivot['avg_rating'], s= (country_numbers/300)\
+            , alpha = 0.5)
+
+for idx, row in restaurant_pivot.iterrows():
+    plt.annotate(idx, (row['total_reviews_count'], row['avg_rating']) )
+
 
 plt.show()
 
@@ -185,23 +205,23 @@ plt.show()
 #Features little change,
 
 
-import requests
-import json
-url = "https://travel-advisor.p.rapidapi.com/restaurants/list-by-latlng"
+#import requests
+#import json
+#url = "https://travel-advisor.p.rapidapi.com/restaurants/list-by-latlng"
 
-querystring = {"latitude":"53.35014","longitude":"-6.266155","limit":"30","distance":"10","open_now":"false","lunit":"km","min_rating":"3"}
+#querystring = {"latitude":"53.35014","longitude":"-6.266155","limit":"30","distance":"10","open_now":"false","lunit":"km","min_rating":"3"}
 
-headers = {
-   'x-rapidapi-key': "3e5ee6b200msh8bafd806e6e5a41p142121jsn0f80884ee934",
-   'x-rapidapi-host': "travel-advisor.p.rapidapi.com"
-    }
+#headers = {
+#   'x-rapidapi-key': "3e5ee6b200msh8bafd806e6e5a41p142121jsn0f80884ee934",
+#   'x-rapidapi-host': "travel-advisor.p.rapidapi.com"
+ #   }
 
-response = requests.request("GET", url, headers=headers, params=querystring)
+#response = requests.request("GET", url, headers=headers, params=querystring)
 
-things=response.text
-data_api_dub = json.loads(things)
-data_api_dub_normal= pd.json_normalize(data_api_dub,'data')
-print(data_api_dub_normal.head())
+#things=response.text
+#data_api_dub = json.loads(things)
+#data_api_dub_normal= pd.json_normalize(data_api_dub,'data')
+#print(data_api_dub_normal.head())
 
 
 
