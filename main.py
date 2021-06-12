@@ -58,20 +58,26 @@ plt.show()
 country_names=['Italy','France','England','Spain','Germany','Greece','Portugal','Belgium','Austria', 'Scotland','Poland'\
                , 'Ireland', 'Wales', 'Czech','Croatia','Sweden','Slovakia','Hungary','NI']
 country_names_sort= sorted(country_names)
+country_colors = np.random.rand(len(country_names),3)
 #Use of pivot table and numpy
 #Use of dictionary for aggfunc
 #Use of looping/itterows for annotate
+
 restaurant_pivot = pd.pivot_table(hotel_refine4, index =['country'], values=['avg_rating', 'total_reviews_count'],
            aggfunc={'avg_rating':[np.mean], 'total_reviews_count':np.sum})
 print(restaurant_pivot)
 country_numbers = hotel_refine4['country'].value_counts()
 plt.figure(figsize=(20,8))
 plt.scatter(x= restaurant_pivot['total_reviews_count'], y= restaurant_pivot['avg_rating'], s= (country_numbers/300)\
-            , alpha = 0.5)
+            , alpha = 0.5, c=country_colors)
+from adjustText import adjust_text
+
 
 for idx, row in restaurant_pivot.iterrows():
-    plt.annotate(idx, (row['total_reviews_count'], row['avg_rating']) )
+    labels = plt.annotate(idx , (row['total_reviews_count'] + 250000 , row['avg_rating']))
 
+plt.annotate('Austria',xy = (0 , 4.12) ,  xytext = (0 , 4.12))
+plt.annotate('Poland',xy = (1087625 , 4.13) ,  xytext = (1087625 , 4.13))
 
 plt.show()
 
