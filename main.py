@@ -76,6 +76,9 @@ from adjustText import adjust_text
 for idx, row in restaurant_pivot.iterrows():
     labels = plt.annotate(idx , (row['total_reviews_count'] + 250000 , row['avg_rating']))
 
+#Inability to remove AUS/POL labels that overlap , adjustTExt didnt work
+#Removing AUS/POL from label list didnt work
+#Multiple lopps to remove didnt work
 plt.annotate('Austria',xy = (0 , 4.12) ,  xytext = (0 , 4.12))
 plt.annotate('Poland',xy = (1087625 , 4.13) ,  xytext = (1087625 , 4.13))
 
@@ -211,26 +214,64 @@ plt.show()
 #Features little change,
 
 
-#import requests
-#import json
-#url = "https://travel-advisor.p.rapidapi.com/restaurants/list-by-latlng"
+import requests
+import json
+url = "https://travel-advisor.p.rapidapi.com/restaurants/list-by-latlng"
 
-#querystring = {"latitude":"53.35014","longitude":"-6.266155","limit":"30","distance":"10","open_now":"false","lunit":"km","min_rating":"3"}
+querystring = {"latitude":"53.35014","longitude":"-6.266155","limit":"30","distance":"10","open_now":"false","lunit":"km","min_rating":"3"}
 
-#headers = {
-#   'x-rapidapi-key': "3e5ee6b200msh8bafd806e6e5a41p142121jsn0f80884ee934",
-#   'x-rapidapi-host': "travel-advisor.p.rapidapi.com"
- #   }
+headers = {
+   'x-rapidapi-key': "3e5ee6b200msh8bafd806e6e5a41p142121jsn0f80884ee934",
+   'x-rapidapi-host': "travel-advisor.p.rapidapi.com"
+    }
 
-#response = requests.request("GET", url, headers=headers, params=querystring)
+response = requests.request("GET", url, headers=headers, params=querystring)
 
-#things=response.text
-#data_api_dub = json.loads(things)
-#data_api_dub_normal= pd.json_normalize(data_api_dub,'data')
-#print(data_api_dub_normal.head())
-
-
+things=response.text
+data_api_dub = json.loads(things)
+data_api_dub_normal= pd.json_normalize(data_api_dub,'data')
+print(data_api_dub_normal.head())
 
 
+url2 = "https://travel-advisor.p.rapidapi.com/restaurants/list-by-latlng"
 
+querystring2 = {"latitude":"-23.533773","longitude":"-46.62529","limit":"30","open_now":"false","min_rating":"3"}
+
+headers2 = {
+    'x-rapidapi-key': "3e5ee6b200msh8bafd806e6e5a41p142121jsn0f80884ee934",
+    'x-rapidapi-host': "travel-advisor.p.rapidapi.com"
+    }
+
+response2 = requests.request("GET", url2, headers=headers2, params=querystring2)
+
+things2=response2.text
+data_api_sao = json.loads(things2)
+data_api_sao_normal= pd.json_normalize(data_api_sao,'data')
+print(data_api_sao_normal.head())
+
+
+url3 = "https://travel-advisor.p.rapidapi.com/restaurants/list-by-latlng"
+
+querystring3 = {"latitude":"37.5665","longitude":"127.024612","limit":"30","open_now":"false","min_rating":"3"}
+
+headers3 = {
+    'x-rapidapi-key': "3e5ee6b200msh8bafd806e6e5a41p142121jsn0f80884ee934",
+    'x-rapidapi-host': "travel-advisor.p.rapidapi.com"
+    }
+
+response3 = requests.request("GET", url3, headers=headers3, params=querystring3)
+
+things3=response3.text
+data_api_seoul = json.loads(things3)
+data_api_seoul_normal= pd.json_normalize(data_api_seoul,'data')
+print(data_api_seoul_normal.head())
+
+api_city_restaurant_df = [data_api_dub_normal,data_api_sao_normal,data_api_seoul_normal]
+api_city_restaurant = pd.concat(api_city_restaurant_df)
+#print(api_city_restaurant.head())
+api_city_restaurant.dropna(subset=['name','num_reviews', 'raw_ranking', 'ranking_denominator'])
+print(api_city_restaurant.head())
+
+api_city_restaurant['City_Rank_Percentile'] = (api_city_restaurant['ranking_position'] / api_city_restaurant['ranking_denominator'])
+print(api_city_restaurant.head())
 
