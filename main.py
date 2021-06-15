@@ -268,10 +268,53 @@ print(data_api_seoul_normal.head())
 
 api_city_restaurant_df = [data_api_dub_normal,data_api_sao_normal,data_api_seoul_normal]
 api_city_restaurant = pd.concat(api_city_restaurant_df)
-#print(api_city_restaurant.head())
-api_city_restaurant.dropna(subset=['name','num_reviews', 'raw_ranking', 'ranking_denominator'])
+
+api_city_restaurant.dropna(subset=['name','num_reviews', 'raw_ranking', 'ranking_denominator'], how='all')
+
+
+api_city_restaurant['ranking_position'] = pd.to_numeric(api_city_restaurant['ranking_position'], downcast="float")
+api_city_restaurant['ranking_denominator'] = pd.to_numeric(api_city_restaurant['ranking_denominator'], downcast="float")
+api_city_restaurant['City_Rank_Percentile'] = (api_city_restaurant['ranking_position'] / api_city_restaurant['ranking_denominator'])*100
+
+#print(api_city_restaurant['City_Rank_Percentile'].dtypes)
+#print(api_city_restaurant['raw_ranking'].dtypes)
+
+api_city_restaurant['raw_ranking']=api_city_restaurant['raw_ranking'].astype(float)
+api_city_restaurant['raw_ranking_round'] = api_city_restaurant['raw_ranking'].round(1)
+api_city_restaurant['raw_ranking_round'] = api_city_restaurant['raw_ranking_round'].astype(float)
+
+
+
 print(api_city_restaurant.head())
 
-api_city_restaurant['City_Rank_Percentile'] = (api_city_restaurant['ranking_position'] / api_city_restaurant['ranking_denominator'])
-print(api_city_restaurant.head())
+
+#custom_palette = {}
+#for q in set(api_city_restaurant.City_Rank_Percentile):
+ #   avr = (api_city_restaurant['ranking_position'] / api_city_restaurant['ranking_denominator'])*100
+  #  if avr < 25:
+   #     custom_palette[q] = 'r'
+    #elif avr < 75:
+     #   custom_palette[q] = 'y'
+    #else:
+     #   custom_palette[q] = 'g'
+
+#color_array = api_city_restaurant['City_Rank_Percentile'].to_numpy()
+
+#def colourpal():
+ #   if api_city_restaurant['City_Rank_Percentile'] >= 25:
+  #      return 'g'
+   # elif api_city_restaurant['City_Rank_Percentile'] >=50:
+    #    return 'y'
+    #elif api_city_restaurant['City_Rank_Percentile'] >= 75:
+     #   return 'r'
+
+#di = {
+ #    api_city_restaurant['City_Rank_Percentile']:colourpal()
+#}
+
+sns.relplot(x="num_reviews", y="ranking_position", hue="location_string", size="raw_ranking",
+            sizes=(15, 15), alpha=.8, palette='bright',
+            height=8, data=api_city_restaurant)
+plt.show()
+
 
