@@ -42,15 +42,15 @@ plt.show()
 #Showing only for restaurants will more than 6000 reviews
 plt.figure(figsize=(15,10))
 plt.scatter(x=hotel_refine4['total_reviews_count'], y=hotel_refine4['avg_rating'],s=150, alpha=0.4,edgecolor='red')
-plt.xlabel('Average rating of restaurant')
-plt.ylabel('No. of total reviews')
-plt.title('Scatter plot showing effect of total no of reviews on average rating')
+plt.xlabel('Average Rating of Restaurant')
+plt.ylabel('Average Rating')
+plt.title('Scatter plot showing effect of total no. of reviews on average rating')
 plt.show()
 #See if no. of reviews controls it
 plt.figure(figsize=(15,10))
 plt.scatter(x=hotel_refine4['total_reviews_count'], y=hotel_refine4['avg_rating'],s=150, alpha=0.4,edgecolor='red')
-plt.xlabel('Average rating of restaurant')
-plt.ylabel('No. of total reviews')
+plt.xlabel('Average Rating of Restaurant')
+plt.ylabel('No. of Total Reviews')
 plt.title('Scatter plot of total no. of reviews on average rating, with at least 6000 reviews')
 plt.xlim(6000)
 plt.show()
@@ -62,7 +62,6 @@ country_colors = np.random.rand(len(country_names),3)
 #Use of pivot table and numpy
 #Use of dictionary for aggfunc
 #Use of looping/itterows for annotate
-
 restaurant_pivot = pd.pivot_table(hotel_refine4, index =['country'], values=['avg_rating', 'total_reviews_count'],
            aggfunc={'avg_rating':[np.mean], 'total_reviews_count':np.sum})
 print(restaurant_pivot)
@@ -70,20 +69,18 @@ country_numbers = hotel_refine4['country'].value_counts()
 plt.figure(figsize=(20,8))
 plt.scatter(x= restaurant_pivot['total_reviews_count'], y= restaurant_pivot['avg_rating'], s= (country_numbers/300)\
             , alpha = 0.5, c=country_colors)
-from adjustText import adjust_text
-
 
 for idx, row in restaurant_pivot.iterrows():
     labels = plt.annotate(idx , (row['total_reviews_count'] + 250000 , row['avg_rating']))
-
-#Inability to remove AUS/POL labels that overlap , adjustTExt didnt work
+#Inability to remove AUS/POL labels that overlap , adjustText didnt work
 #Removing AUS/POL from label list didnt work
 #Multiple lopps to remove didnt work
 plt.annotate('Austria',xy = (0 , 4.12) ,  xytext = (0 , 4.12))
 plt.annotate('Poland',xy = (1087625 , 4.13) ,  xytext = (1087625 , 4.13))
-
+plt.xlabel('Total Reviews Count')
+plt.ylabel('Average Rating')
+plt.title('Scatter plot showing the average rating of all the restaurants in each country')
 plt.show()
-
 
 #Use Ireland only
 hotel_refine4.set_index('country', inplace = True)
@@ -101,17 +98,46 @@ plt.xlabel('Avg Rating')
 plt.ylabel('Total Review Counts')
 plt.title('Total reviews against Avg Rating for Ireland')
 plt.show()
+
 #Same for region, lets investigate further,
+
+
+cols=[]
+def province_colour(lst):
+    for l in lst:
+        if l=='Province of Munster':
+            cols.append('red')
+        elif l=='Province of Leinster':
+            cols.append('blue')
+        elif l=='Province of Ulster':
+            cols.append('yellow')
+        elif l=='Province of Connacht':
+            cols.append('green')
+    return cols
 
 #Lets see 5star resturant distribution, region affect ?
 restaurant_ireland5 = restaurant_ireland.loc[restaurant_ireland['avg_rating'] == 5.0]
 print(restaurant_ireland5.head())
-plt.hist(restaurant_ireland5['region'], color = 'green')
-plt.xlabel('Region')
+#print(restaurant_ireland5['region'])
+pc=restaurant_ireland5['region']
+#pc=['Province of Munster', 'Province of Leinster','Province of Ulster', 'Province of Connacht']
+cols=province_colour(pc)
+#print(cols)
+plt.hist(x= restaurant_ireland5['region'] ,color = 'green')
+plt.xlabel('Regions of Ireland')
 plt.ylabel('No. of 5star restaurants')
 plt.title('Locations of 5star rated restaurants in Ireland by Region')
 plt.show()
-#5 Star rating across all Ireland
+#5 Star rating is across all Ireland, more heavily concentrated in one region
+#
+plt.figure(figsize=(15,15))
+plt.bar(data = restaurant_ireland5,x = restaurant_ireland5['region'], height =restaurant_ireland5['total_reviews_count']\
+        , color = cols )
+plt.xlabel('Regions of Ireland')
+plt.ylabel('Total combined review counts of all 5.0 rated restaurants')
+plt.title('Bar chart showing number of 5.0 rated restaurants in each region of Ireland')
+plt.show()
+
 
 #Get awards to say Yes or None, None already added
 restaurant_ireland.loc[restaurant_ireland['awards'] != 'None', 'awards'] = 'Yes'
@@ -133,7 +159,7 @@ g = sns.PairGrid(restaurant_ireland, y_vars="avg_rating",
              x_vars=["vegetarian_friendly", "vegan_options", "gluten_free"],
               height=6.5, aspect=1.3)
 g.map(sns.pointplot, color="xkcd:coral")
-plt.xlabel('Nutritional Options')
+#plt.xlabel('gluten free')
 plt.ylabel('Avg Rating')
 plt.title('Showing changes in Avg Rating when Nutritional Options Offered')
 plt.show()
@@ -194,7 +220,7 @@ plt.show()
 #Change hotel_refine4 to say UK, and restaurant_name to be name
 #Merge with star_restaurants on name, will merge the European places.
 #Need to reset index of hotel_refine4 as country used as index before
-#Change column names so can merge on them (Could do left_on and right_on)
+#Change column names(Use of dict) so can merge on them (Could do left_on and right_on)
 #Inner join to keep only michelin restaurants
 hotel_refine4.reset_index(inplace=True)
 hotel_refine4["country"].replace({"England": "United Kingdom", "Scotland": "United Kingdom", "Wales" : "United Kingdom"}, inplace=True)
@@ -208,10 +234,11 @@ restaurant_euro_star.loc[restaurant_euro_star['features'] != 'None', 'features']
 restaurant_euro_star['rating_metric'] = restaurant_euro_star['food']+restaurant_euro_star['service']+ \
             restaurant_euro_star['value']
 #See how stared restaurants,
+plt.figure(figsize=(10,10))
 ax =  sns.swarmplot(x="rating_metric", y="features", hue="Star",
                    data=restaurant_euro_star,palette = 'bright', edgecolor='red', linewidth=0.3, size=3.2)
 plt.show()
-#Features little change,
+#Features little difference seen, 3 start arent low
 
 
 import requests
@@ -269,8 +296,8 @@ print(data_api_seoul_normal.head())
 api_city_restaurant_df = [data_api_dub_normal,data_api_sao_normal,data_api_seoul_normal]
 api_city_restaurant = pd.concat(api_city_restaurant_df)
 
-api_city_restaurant.dropna(subset=['name','num_reviews', 'raw_ranking', 'ranking_denominator'], how='all')
-
+api_city_restaurant.dropna(subset=['name','num_reviews', 'raw_ranking', 'ranking_denominator'], how='all'\
+    , inplace = True )
 
 api_city_restaurant['ranking_position'] = pd.to_numeric(api_city_restaurant['ranking_position'], downcast="float")
 api_city_restaurant['ranking_denominator'] = pd.to_numeric(api_city_restaurant['ranking_denominator'], downcast="float")
@@ -283,38 +310,12 @@ api_city_restaurant['raw_ranking']=api_city_restaurant['raw_ranking'].astype(flo
 api_city_restaurant['raw_ranking_round'] = api_city_restaurant['raw_ranking'].round(1)
 api_city_restaurant['raw_ranking_round'] = api_city_restaurant['raw_ranking_round'].astype(float)
 
-
-
-print(api_city_restaurant.head())
-
-
-#custom_palette = {}
-#for q in set(api_city_restaurant.City_Rank_Percentile):
- #   avr = (api_city_restaurant['ranking_position'] / api_city_restaurant['ranking_denominator'])*100
-  #  if avr < 25:
-   #     custom_palette[q] = 'r'
-    #elif avr < 75:
-     #   custom_palette[q] = 'y'
-    #else:
-     #   custom_palette[q] = 'g'
-
-#color_array = api_city_restaurant['City_Rank_Percentile'].to_numpy()
-
-#def colourpal():
- #   if api_city_restaurant['City_Rank_Percentile'] >= 25:
-  #      return 'g'
-   # elif api_city_restaurant['City_Rank_Percentile'] >=50:
-    #    return 'y'
-    #elif api_city_restaurant['City_Rank_Percentile'] >= 75:
-     #   return 'r'
-
-#di = {
- #    api_city_restaurant['City_Rank_Percentile']:colourpal()
-#}
-
+sorted_api_city_restaurant = api_city_restaurant.sort_values(by='num_reviews')
+sorted_api_city_restaurant['num_reviews']=sorted_api_city_restaurant['num_reviews'].astype(int)
 sns.relplot(x="num_reviews", y="ranking_position", hue="location_string", size="raw_ranking",
             sizes=(15, 15), alpha=.8, palette='bright',
-            height=8, data=api_city_restaurant)
+            height=8, data=sorted_api_city_restaurant, kind = 'scatter', col_order =  'num_reviews')
+plt.xlim(0,400)
 plt.show()
 
 
