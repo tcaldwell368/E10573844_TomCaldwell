@@ -132,7 +132,7 @@ plt.ylabel('No. of 5star restaurants')
 plt.title('Locations of 5star rated restaurants in Ireland by Region')
 plt.show()
 #5 Star rating is across all Ireland, more heavily concentrated in one region
-#
+
 plt.figure(figsize=(15,15))
 plt.bar(data = restaurant_ireland5,x = restaurant_ireland5['region'], height =restaurant_ireland5['total_reviews_count']\
         , color = cols )
